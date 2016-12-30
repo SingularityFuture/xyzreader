@@ -112,7 +112,7 @@ public class ArticleDetailFragment extends Fragment {
         }
         else{
             Toolbar toolbar=(Toolbar)rootView.findViewById(R.id.detail_toolbar);
-            toolbar.setBackgroundColor(getResources().getColor(R.color.primary));
+            //toolbar.setBackgroundColor(ContextCompat.getColor(getContext(),R.style.AppTheme.colorPrimary));
             TextView title_view=(TextView)rootView.findViewById(R.id.land_title);
             title_view.setText(title);
             title_view.setTypeface(roboto_condensed_regular);

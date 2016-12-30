@@ -6,14 +6,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
+import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -29,12 +36,13 @@ import com.example.xyzreader.data.UpdaterService;
  * touched, lead to a {@link ArticleDetailActivity} representing item details. On tablets, the
  * activity presents a grid of items as cards.
  */
-public class ArticleListActivity extends ActionBarActivity implements
+public class ArticleListActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
     private Toolbar mToolbar;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerView;
+    private CoordinatorLayout coordinatorLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,11 +50,24 @@ public class ArticleListActivity extends ActionBarActivity implements
         setContentView(R.layout.activity_article_list);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
 
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        coordinatorLayout=(CoordinatorLayout) findViewById(R.id.main_content);
 
-        //final View toolbarContainerView = findViewById(R.id.toolbar_container);
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+
+        mSwipeRefreshLayout.setOnRefreshListener(
+                new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        mSwipeRefreshLayout.setRefreshing(true);
+                        startService(new Intent(getApplicationContext(),UpdaterService.class));
+                    }
+                }
+        );
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         getLoaderManager().initLoader(0, null, this);
@@ -79,11 +100,17 @@ public class ArticleListActivity extends ActionBarActivity implements
         @Override
         public void onReceive(Context context, Intent intent) {
             if (UpdaterService.BROADCAST_ACTION_STATE_CHANGE.equals(intent.getAction())) {
-                mIsRefreshing = intent.getBooleanExtra(UpdaterService.EXTRA_REFRESHING, false);
-                updateRefreshingUI();
+                mIsRefreshing = intent.getBooleanExtra(UpdaterService.EXTRA_REFRESHING,true);
+                if(mIsRefreshing)
+                {}
+                else {
+                    mSwipeRefreshLayout.setRefreshing(false);
+                }
             }
         }
     };
+
+
 
     private void updateRefreshingUI() {
         mSwipeRefreshLayout.setRefreshing(mIsRefreshing);
@@ -99,7 +126,11 @@ public class ArticleListActivity extends ActionBarActivity implements
         Adapter adapter = new Adapter(cursor);
         adapter.setHasStableIds(true);
         mRecyclerView.setAdapter(adapter);
-        int columnCount = getResources().getInteger(R.integer.list_column_count);
+        int columnCount;
+        if(getResources().getConfiguration().orientation== Configuration.ORIENTATION_PORTRAIT)
+            columnCount=getResources().getInteger(R.integer.list_column_count);
+        else
+            columnCount=getResources().getInteger(R.integer.portrait_column_count);
         StaggeredGridLayoutManager sglm =
                 new StaggeredGridLayoutManager(columnCount, StaggeredGridLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(sglm);
@@ -130,8 +161,13 @@ public class ArticleListActivity extends ActionBarActivity implements
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    startActivity(new Intent(Intent.ACTION_VIEW,
-                            ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))));
+                    Intent intent=new Intent(getApplicationContext(),ArticleDetailActivity.class);
+                    String data=ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition())).toString();
+                    Cursor c=getContentResolver().query(Uri.parse(data),new String[]{ItemsContract.Items._ID},null,null,null);
+                    Log.v("In List Activity",data);
+                    c.moveToFirst();
+                    intent.putExtra("item_id",Long.parseLong(c.getString(c.getColumnIndex(ItemsContract.Items._ID))));
+                    startActivity(intent);
                 }
             });
             return vh;
@@ -139,6 +175,14 @@ public class ArticleListActivity extends ActionBarActivity implements
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
+            if(position==(mCursor.getCount()-1)){
+                Snackbar snackbar= Snackbar.make(coordinatorLayout,getText(R.string.snackbar_message),Snackbar.LENGTH_LONG);
+                View sn_view=snackbar.getView();
+                sn_view.setBackgroundColor(ContextCompat.getColor(getApplicationContext(),R.color.accent));
+                TextView textView = (TextView) sn_view.findViewById(android.support.design.R.id.snackbar_text);
+                textView.setTextColor(Color.BLACK);
+                snackbar.show();
+            }
             mCursor.moveToPosition(position);
             holder.titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
             holder.subtitleView.setText(
