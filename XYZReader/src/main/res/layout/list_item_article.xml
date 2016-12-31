@@ -25,7 +25,8 @@
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
             android:adjustViewBounds="true"
-            android:background="@color/photo_placeholder" />
+            android:background="@color/photo_placeholder"
+            android:transitionName="@string/shared_image"/>
 
         <TextView
             android:id="@+id/article_title"
@@ -36,8 +37,8 @@
             android:paddingTop="16dp"
             android:paddingRight="16dp"
             android:paddingBottom="4dp"
-            android:textColor="colorPrimaryText"
-            android:background="colorPrimaryLight"
+            android:textColor="@color/primary_text"
+            android:background="@color/primary_light"
             android:ellipsize="end"
             android:maxLines="4" />
 
@@ -49,8 +50,8 @@
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
             android:paddingBottom="16dp"
-            android:textColor="colorPrimaryText"
-            android:background="colorPrimaryLight"
+            android:textColor="@color/primary_text"
+            android:background="@color/primary_light"
             android:maxLines="1"
             android:ellipsize="end" />
     </LinearLayout>

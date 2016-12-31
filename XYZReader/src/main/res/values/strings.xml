@@ -9,5 +9,6 @@
 
     <string name="up">Up</string>
     <string name="snackbar_message">No More Articles</string>
+    <string name="shared_image">bleedthrough</string>
 
 </resources>

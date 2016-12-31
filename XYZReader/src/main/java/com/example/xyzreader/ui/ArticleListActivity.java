@@ -1,10 +1,8 @@
 package com.example.xyzreader.ui;
 
+import android.app.ActivityOptions;
 import android.app.LoaderManager;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.Loader;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -14,7 +12,6 @@ import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -40,7 +37,7 @@ public class ArticleListActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
     private Toolbar mToolbar;
-    private SwipeRefreshLayout mSwipeRefreshLayout;
+    //private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerView;
     private CoordinatorLayout coordinatorLayout;
 
@@ -57,7 +54,7 @@ public class ArticleListActivity extends AppCompatActivity implements
         coordinatorLayout=(CoordinatorLayout) findViewById(R.id.main_content);
 
 
-        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+/*        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
 
         mSwipeRefreshLayout.setOnRefreshListener(
                 new SwipeRefreshLayout.OnRefreshListener() {
@@ -67,7 +64,7 @@ public class ArticleListActivity extends AppCompatActivity implements
                         startService(new Intent(getApplicationContext(),UpdaterService.class));
                     }
                 }
-        );
+        );*/
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         getLoaderManager().initLoader(0, null, this);
@@ -84,18 +81,22 @@ public class ArticleListActivity extends AppCompatActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        registerReceiver(mRefreshingReceiver,
-                new IntentFilter(UpdaterService.BROADCAST_ACTION_STATE_CHANGE));
+ /*       registerReceiver(mRefreshingReceiver,
+                new IntentFilter(UpdaterService.BROADCAST_ACTION_STATE_CHANGE));*/
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+/*
         unregisterReceiver(mRefreshingReceiver);
+*/
     }
 
+/*
     private boolean mIsRefreshing = false;
-
+*/
+/*
     private BroadcastReceiver mRefreshingReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -108,13 +109,15 @@ public class ArticleListActivity extends AppCompatActivity implements
                 }
             }
         }
-    };
+    };*/
 
 
 
+/*
     private void updateRefreshingUI() {
         mSwipeRefreshLayout.setRefreshing(mIsRefreshing);
     }
+*/
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
@@ -167,7 +170,8 @@ public class ArticleListActivity extends AppCompatActivity implements
                     Log.v("In List Activity",data);
                     c.moveToFirst();
                     intent.putExtra("item_id",Long.parseLong(c.getString(c.getColumnIndex(ItemsContract.Items._ID))));
-                    startActivity(intent);
+                    Bundle bundle = ActivityOptions.makeSceneTransitionAnimation(ArticleListActivity.this).toBundle();
+                    startActivity(intent, bundle);
                 }
             });
             return vh;

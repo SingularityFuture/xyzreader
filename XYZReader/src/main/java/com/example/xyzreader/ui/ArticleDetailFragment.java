@@ -24,9 +24,6 @@ import com.example.xyzreader.R;
 import com.example.xyzreader.data.ItemsContract;
 import com.squareup.picasso.Picasso;
 
-/**
- * Created by shaunak basu on 15-10-2016.
- */
 public class ArticleDetailFragment extends Fragment {
 
     String url,published_date,author,title,body,aspect_ratio;
@@ -105,6 +102,7 @@ public class ArticleDetailFragment extends Fragment {
 
 
             collapsingToolbarLayout.setTitle(title);
+            //collapsingToolbarLayout.setCollapsedTitleTextColor("#00000000");
             collapsingToolbarLayout.setCollapsedTitleTypeface(roboto_condensed_regular);
 
 
